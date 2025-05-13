@@ -1,5 +1,3 @@
-# votacao_online
-
 # 🗳️ Sistema de Votação Online (Back-End)
 
 Sistema de enquetes com API RESTful e atualização em tempo real usando WebSockets.
