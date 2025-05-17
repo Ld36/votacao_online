@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: votacao-app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www
+    networks:
+      - votacao-network
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:8.0
+    container_name: votacao-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: votacao
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: secret
+      MYSQL_USER: votacao
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - votacao-network
+
+  redis:
+    image: redis:alpine
+    container_name: votacao-redis
+    restart: unless-stopped
+    networks:
+      - votacao-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: votacao-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "6001:6001"
+    volumes:
+      - .:/var/www
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - votacao-network
+    depends_on:
+      - app
+
+networks:
+  votacao-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
